@@ -6,51 +6,41 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 const Page = () => {
-    const [configId, setConfigId] = useState<string | null>(null);
-    const [shouldRedirect, setShouldRedirect] = useState<boolean>(false);
+  const [configId, setConfigId] = useState<string | null>(null);
 
-    const router = useRouter();
+  const router = useRouter();
 
-    useEffect(() => {
-        const configurationId = localStorage.getItem("configurationId");
-        if(configurationId) setConfigId(configurationId);
-    },[])
+  useEffect(() => {
+    const configurationId = localStorage.getItem("configurationId");
+    if (configurationId) setConfigId(configurationId);
+  }, []);
 
-    const { data } = useQuery({
-        queryKey: ["auth-callback"],
-        queryFn: async () => await getAuthStatus(),
-        retry: true,
-        retryDelay: 500,
-    })
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["auth-callback"],
+    queryFn: async () => await getAuthStatus(),
+    retry: true,
+    retryDelay: 500,
+  });
 
-    useEffect(() => {
-        if(data?.success && configId) {
-            localStorage.removeItem("configurationId");
-            setShouldRedirect(true);
-        }
-    }, [data, configId]);
-
-    useEffect(() => {
-        if(shouldRedirect) {
-            router.push(`/configure/preview?id=${configId}`);
-        } else {
-            router.push(`/`);
-        }
-    }, [shouldRedirect]);
-
-    if(data?.success && !configId) {
-        setShouldRedirect(true);
+  useEffect(() => {
+    if (isLoading || !data) return;
+    if (data.success && configId) {
+      router.push(`/configure/preview?id=${configId}`);
+      localStorage.removeItem("configurationId");
+    } else {
+      router.push(`/`);
     }
+  }, [data, configId, isLoading, router]);
 
-    return (
-        <div className='w-full mt-24 flex justify-center'>
-          <div className='flex flex-col items-center gap-2'>
-            <Loader2 className='h-8 w-8 animate-spin text-zinc-500' />
-            <h3 className='font-semibold text-xl'>Logging you in...</h3>
-            <p>You will be redirected automatically.</p>
-          </div>
-        </div>
-    );
-}
+  return (
+    <div className="w-full mt-24 flex justify-center">
+      <div className="flex flex-col items-center gap-2">
+        <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
+        <h3 className="font-semibold text-xl">Logging you in...</h3>
+        <p>You will be redirected automatically.</p>
+      </div>
+    </div>
+  );
+};
 
 export default Page;
