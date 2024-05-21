@@ -11,20 +11,6 @@ const Navbar = async () => {
 
   const isAdmin = user?.email === process.env.ADMIN_EMAIL;
 
-  if (user && user.email) {
-    const existingUser = await db.user.findUnique({
-      where: { email: user.email },
-    });
-
-    if (!existingUser) {
-      await db.user.create({
-        data: {
-          email: user.email,
-        },
-      });
-    }
-  }
-
   return (
     <nav className="sticky z-[100] h-14 inset-x-0 top-0 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all">
       <MaxWidthWrapper>

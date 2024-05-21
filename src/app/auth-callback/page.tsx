@@ -33,6 +33,8 @@ const Page = () => {
     useEffect(() => {
         if(shouldRedirect) {
             router.push(`/configure/preview?id=${configId}`);
+        } else {
+            router.push(`/`);
         }
     }, [shouldRedirect]);
 
