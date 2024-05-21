@@ -38,6 +38,10 @@ export async function POST(req: Request) {
       const billingAddress = session.customer_details!.address;
       const shippingAddress = session.customer_details!.address;
 
+      console.log("session",session);
+      console.log("billingAddress",billingAddress);
+      console.log("shippingAddress",shippingAddress);
+
       await db.order.update({
         where: {
           id: orderId,
