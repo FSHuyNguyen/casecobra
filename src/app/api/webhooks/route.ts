@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       }
 
       const billingAddress = session.customer_details!.address;
-      const shippingAddress = session.customer_details!.address;
+      const shippingAddress = session.shipping_details!.address;
 
       const updatedOrder = await db.order.update({
         where: {
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
               country: shippingAddress!.country!,
               postalCode: shippingAddress!.postal_code!,
               street: shippingAddress!.line1!,
-              state: shippingAddress!.state!,
+              state: shippingAddress!.state,
             },
           },
           billingAddress: {
@@ -65,16 +65,16 @@ export async function POST(req: Request) {
               country: billingAddress!.country!,
               postalCode: billingAddress!.postal_code!,
               street: billingAddress!.line1!,
-              state: billingAddress!.state!,
+              state: billingAddress!.state,
             },
           },
         },
       });
 
       await resend.emails.send({
-        from: 'CaseCobra <hello@joshtriedcoding.com>',
+        from: "CaseCobra <onboarding@resend.dev>",
         to: [event.data.object.customer_details.email],
-        subject: 'Thanks for your order!',
+        subject: "Thanks for your order!",
         react: OrderReceivedEmail({
           orderId,
           orderDate: updatedOrder.createdAt.toLocaleDateString(),
@@ -88,12 +88,13 @@ export async function POST(req: Request) {
             state: shippingAddress!.state,
           },
         }),
-      })
+      });
     }
 
     return NextResponse.json({ result: event, ok: true });
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    console.error(err);
+
     return NextResponse.json(
       { message: "Something went wrong", ok: false },
       { status: 500 }
